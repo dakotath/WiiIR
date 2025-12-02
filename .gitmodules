@@ -7,3 +7,6 @@
 [submodule "ImGUI"]
 	path = ImGUI
 	url = https://github.com/ocornut/imgui.git
+[submodule "irdb/Flipper-IRDB"]
+	path = irdb/Flipper-IRDB
+	url = https://github.com/Lucaslhm/Flipper-IRDB
