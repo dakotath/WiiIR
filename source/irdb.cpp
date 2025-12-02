@@ -275,13 +275,10 @@ void SendIR(const std::string &dataString)
         uint8_t adrLo = adrFull & 0xFF;
         uint8_t adrHi = (adrFull >> 8) & 0xFF;
 
-        uint8_t cmdLo = cmdFull & 0xFF;
-        uint8_t cmdHi = (cmdFull >> 8) & 0xFF;
-
         printf("[SendIR] Calling IR_SendNECext(%u, %u, %u, %u)\n",
-               adrLo, adrHi, cmdLo, cmdHi);
+               adrLo, adrHi, cmdFull, cmdFull);
 
-        IR_SendNECext(adrLo, adrHi, cmdLo, cmdHi, true);
+        IR_SendNECext(adrLo, adrHi, cmdFull, cmdFull, true);
         return;
     }
 
