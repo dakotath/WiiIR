@@ -58,7 +58,6 @@ void IR_SendByteSIRC(u8 byte, u8 length) {
     }
 }
 
-
 // Send a command.
 /*
     DEV Notes:
