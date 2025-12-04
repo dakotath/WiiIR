@@ -3,8 +3,13 @@
 #define WIIIR_IR_H
 
 #include <stdio.h>
+
+#ifdef NINTENDOWII
 #include <gccore.h>
 #include <wiiuse/wpad.h>
+#endif
+
+// SDL2 Video Rendering
 #include <SDL.h>
 
 #ifdef __cplusplus
@@ -25,17 +30,21 @@ extern "C" {
 #endif
 
 // Framebuffer and Render Mode.
+#ifdef NINTENDOWII
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
+#endif
 
 extern float main_scale;
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
 // GPIO
+#ifdef NINTENDOWII
 #define _gpio_out_reg (u32 *)0xCD0000C0
 #define IRBLAST_PORT 0x100  // Sensor Bar GPIO
 #define NWLIGHT_PORT 0x20   // DVD Light GPIO
+#endif
 
 // Enum for protocols
 enum {
@@ -66,6 +75,7 @@ enum {
 };
 
 // IR remote set mappings.
+#ifdef NINTENDOWII
 #define IR_REMOTE_KEY_UP       WPAD_BUTTON_UP
 #define IR_REMOTE_KEY_DOWN     WPAD_BUTTON_DOWN
 #define IR_REMOTE_KEY_LEFT     WPAD_BUTTON_LEFT
@@ -76,6 +86,18 @@ enum {
 #define IR_REMOTE_KEY_VM       WPAD_BUTTON_MINUS
 #define IR_REMOTE_KEY_PWR      WPAD_BUTTON_1
 #define IR_REMOTE_KEY_INP      WPAD_BUTTON_2
+#else
+#define IR_REMOTE_KEY_UP       SDLK_UP
+#define IR_REMOTE_KEY_DOWN     SDLK_DOWN
+#define IR_REMOTE_KEY_LEFT     SDLK_LEFT
+#define IR_REMOTE_KEY_RIGHT    SDLK_RIGHT
+#define IR_REMOTE_KEY_OK       SDLK_A
+#define IR_REMOTE_KEY_BACK     SDLK_B
+#define IR_REMOTE_KEY_VP       SDLK_KP_PLUS
+#define IR_REMOTE_KEY_VM       SDLK_KP_MINUS
+#define IR_REMOTE_KEY_PWR      SDLK_KP_1
+#define IR_REMOTE_KEY_INP      SDLK_KP_2
+#endif
 
 // Enum for remote mapping.
 enum {
@@ -272,6 +294,7 @@ void Deinit();
 
 // --- All mappable Wii WPAD buttons ---
 #ifdef __cplusplus
+#ifdef NINTENDOWII
 static const std::vector<std::string> WiiButtons = {
     "WPAD_BUTTON_UP",
     "WPAD_BUTTON_DOWN",
@@ -296,6 +319,32 @@ static const std::vector<std::string> WiiButtons = {
     "WPAD_CLASSIC_BUTTON_FULL_L",
     "WPAD_CLASSIC_BUTTON_FULL_R",
 };
+#else
+static const std::vector<std::string> WiiButtons = {
+    "SDLK_UP",
+    "SDLK_DOWN",
+    "SDLK_LEFT",
+    "SDLK_RIGHT",
+    "SDLK_A",
+    "SDLK_B",
+    "SDLK_KP_1",
+    "SDLK_KP_2",
+    "SDLK_KP_PLUS",
+    "SDLK_KP_MINUS",
+    "SDLK_KP_ENTER",
+    "SDLK_N",
+    "SDLK_M",
+    "SDLK_Q",
+    "SDLK_W",
+    "SDLK_E",
+    "SDLK_R",
+    "SDLK_T",
+    "SDLK_Y",
+    "SDLK_U",
+    "SDLK_I",
+    "SDLK_O",
+};
+#endif
 
 struct MapEntry {
     std::string value;   // e.g., "WPAD_BUTTON_A"

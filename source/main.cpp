@@ -82,10 +82,15 @@
 */
 
 #include "imgui.h"
+#include "imgui_freetype.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 #include "WiiIR/IR.hpp"
 #include <stdio.h>
+
+// Font
+static_assert(true, "imgui_freetype included");
+#include "DroidSans_ttf.h"
 
 #include "tinyxml2.h"
 #include <string>
@@ -175,8 +180,14 @@ int main(int, char**)
     // Get IO
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+    // Add the main font
+    ImFontConfig cfg;
+    cfg.FontDataOwnedByAtlas = false;
+    io.Fonts->AddFontFromMemoryTTF((void*)DroidSans_ttf, DroidSans_ttf_size, 16.0f, &cfg);
+    io.Fonts->Build();
+
     // Our state
-    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.25f, 0.5f, 0.5f, 1.00f);
 
     // Main loop
     bool done = false;
@@ -215,8 +226,9 @@ int main(int, char**)
         // remove rounding/border
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0f);
         DrawXMLBrowser(db, window_flags);
-        ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(3);
 
         // Rendering
         ImGui::Render();

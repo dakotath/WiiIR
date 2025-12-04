@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/source")
 set(CJSON_DIR "${CMAKE_SOURCE_DIR}/libCJSON")
 set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/ImGUI")
+set(IMGUI_FREETYPE_DIR "${CMAKE_SOURCE_DIR}/ImGUI/misc/freetype")
 set(IMGUI_PATCH_DIR "${CMAKE_SOURCE_DIR}/ImGUI_RenderPatchWii")
 set(TINYXML2_DIR "${CMAKE_SOURCE_DIR}/TinyXML2")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
@@ -34,11 +35,16 @@ set(TINYXML2_SOURCES
     ${TINYXML2_DIR}/tinyxml2.cpp
 )
 
+set(IMGUI_ENABLE_FREETYPE true)
+
 set(IMGUI_SOURCES
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_draw.cpp
     ${IMGUI_DIR}/imgui_tables.cpp
     ${IMGUI_DIR}/imgui_widgets.cpp
+
+    # Freetype2
+    ${IMGUI_FREETYPE_DIR}/imgui_freetype.cpp
 
     # Custom render patch:
     ${IMGUI_PATCH_DIR}/backends/imgui_impl_sdl2.cpp
@@ -58,11 +64,13 @@ include_directories(
     ${INCLUDE_DIR}
     $ENV{DEVKITPRO}/libogc/include
     $ENV{DEVKITPRO}/portlibs/ppc/include
+    $ENV{DEVKITPRO}/portlibs/ppc/include/freetype2
     $ENV{DEVKITPRO}/portlibs/wii/include
     ${CMAKE_BINARY_DIR}/data_objs
 
     # ImGUI
     ${IMGUI_DIR}
+    ${IMGUI_FREETYPE_DIR}
     ${IMGUI_PATCH_DIR}/backends
 
     # cJSON Includes
@@ -106,6 +114,7 @@ file(GLOB BINFILES
     "${DATA_DIR}/*.ogg"
     "${DATA_DIR}/*.txt"
     "${DATA_DIR}/*.tar"
+    "${DATA_DIR}/*.ttf"
     "${DATA_DIR}/*.lang"
 )
 
@@ -150,12 +159,14 @@ link_directories(
     $ENV{DEVKITPRO}/portlibs/ppc/lib
 )
 
-# Find SDL2
+# Find SDL2 and Freetype
 find_package(SDL2 REQUIRED)
+find_package(Freetype REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 # Link SDL2
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} Freetype::Freetype)
 
 # libcURL
 target_link_libraries(${PROJECT_NAME}
@@ -178,11 +189,18 @@ else()
 endif()
 
 set(BUILD_HOST "${BUILD_HOST_RAW}")
+set(BUILD_TARG "Unknown")
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "NintendoWii")
+    set(BUILD_TARG "Wii")
+    add_compile_definitions(NINTENDOWII)
+endif()
 
 # Export to compiler definitions
 add_compile_definitions(
     BUILD_DATE="${BUILD_DATE}"
     BUILD_HOST="${BUILD_HOST}"
+    BUILD_TARG="${BUILD_TARG}"
 )
 
 # Print some info to confirm configuration

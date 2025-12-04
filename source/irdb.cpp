@@ -591,13 +591,41 @@ void RunDeviceInputLoop(const DeviceEntry& device)
 
     while (true)
     {
+        uint32_t down = 0;
+
+        // ============================================================
+        // PLATFORM INPUT SECTION
+        // ============================================================
+
+#ifdef NINTENDOWII
+        // ---- WII INPUT ----
         WPAD_ScanPads();
-        u32 down = WPAD_ButtonsDown(0);
+        down = WPAD_ButtonsDown(0);
+
+#else
+        // ---- SDL INPUT ----
+        SDL_Event e;
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_KEYDOWN)
+                down = e.key.keysym.sym;
+        }
+#endif
+
+        // ============================================================
+        // HOME BUTTON HANDLING
+        // ============================================================
+
+#ifdef NINTENDOWII
+        bool homePressed = (down & WPAD_BUTTON_HOME);
+#else
+        bool homePressed = (down == SDLK_HOME);
+#endif
 
         // -------------------------------
         // HOME BUTTON LOGIC
         // -------------------------------
-        if (down & WPAD_BUTTON_HOME)
+        if (homePressed)
         {
             homePressCount++;
 
@@ -606,12 +634,10 @@ void RunDeviceInputLoop(const DeviceEntry& device)
             if (homePressCount >= 5)
             {
                 printf("HOME pressed 5 times — exiting device mode.\n");
-                exit(0); // Software Exit
+                exit(0);
             }
 
-            // Send IR on any HOME press <5
-            // You can send special "home" button code here,
-            // but normally HOME isn't mapped — your choice.
+            // Send IR for mapped "Home Button"
             for (const auto& btn : device.buttons)
             {
                 if (strcmp(btn.name.c_str(), "Home Button") == 0)
@@ -621,33 +647,35 @@ void RunDeviceInputLoop(const DeviceEntry& device)
                 }
             }
 
-            // Continue loop — skip processing other buttons
+#ifdef NINTENDOWII
             VIDEO_WaitVSync();
+#else
+            SDL_Delay(16);
+#endif
             continue;
         }
 
-        // If ANY other button is pressed, reset HOME counter
-        if (down && !(down & WPAD_BUTTON_HOME))
+        // Reset HOME counter if other keys pressed
+        if (down && !homePressed)
         {
             if (homePressCount > 0)
-            {
                 printf("[INFO] HOME press reset (other key pressed)\n");
-            }
+
             homePressCount = 0;
         }
 
-        // -------------------------------
-        // Regular button mapping logic
-        // -------------------------------
+        // ============================================================
+        // REGULAR BUTTON MAPPING
+        // ============================================================
 
         for (const auto& btn : device.buttons)
         {
-            // Check each map under the button
             for (const auto& map : btn.maps)
             {
-                // Convert "WPAD_BUTTON_A" → WPAD_BUTTON_A const
-                u32 requiredBtn = 0;
+                uint32_t requiredBtn = 0;
 
+#ifdef NINTENDOWII
+                // ---- Wii button constants ----
                 if      (map.value == "WPAD_BUTTON_A")     requiredBtn = WPAD_BUTTON_A;
                 else if (map.value == "WPAD_BUTTON_B")     requiredBtn = WPAD_BUTTON_B;
                 else if (map.value == "WPAD_BUTTON_UP")    requiredBtn = WPAD_BUTTON_UP;
@@ -660,21 +688,38 @@ void RunDeviceInputLoop(const DeviceEntry& device)
                 else if (map.value == "WPAD_BUTTON_MINUS") requiredBtn = WPAD_BUTTON_MINUS;
                 else if (map.value == "WPAD_BUTTON_HOME")  requiredBtn = WPAD_BUTTON_HOME;
 
-                if (requiredBtn == 0) continue;
+                if (requiredBtn != 0 && (down & requiredBtn))
 
-                // Check if button just pressed
-                if (down & requiredBtn)
+#else
+                // ---- SDL keyboard mappings ----
+                // Map XML values to SDL keys
+                if      (map.value == "A") requiredBtn = SDLK_a;
+                else if (map.value == "B") requiredBtn = SDLK_b;
+                else if (map.value == "UP") requiredBtn = SDLK_UP;
+                else if (map.value == "DOWN") requiredBtn = SDLK_DOWN;
+                else if (map.value == "LEFT") requiredBtn = SDLK_LEFT;
+                else if (map.value == "RIGHT") requiredBtn = SDLK_RIGHT;
+                else if (map.value == "1") requiredBtn = SDLK_1;
+                else if (map.value == "2") requiredBtn = SDLK_2;
+                else if (map.value == "+") requiredBtn = SDLK_PLUS;
+                else if (map.value == "-") requiredBtn = SDLK_MINUS;
+                else if (map.value == "HOME") requiredBtn = SDLK_HOME;
+
+                if (down == requiredBtn)
+#endif
                 {
                     printf("Button pressed: %s -> Sending IR: %s\n",
                            btn.name.c_str(), btn.data.c_str());
-                    
                     SendIR(btn.data);
                 }
             }
         }
 
-        // Wii-safe vsync sleep
+#ifdef NINTENDOWII
         VIDEO_WaitVSync();
+#else
+        SDL_Delay(16);
+#endif
     }
 }
 
