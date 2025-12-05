@@ -31,8 +31,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
-#include <gccore.h>
 #include "WiiIR/IR.hpp"
 
 // Repeating signal (a.k.a. Key Held Down).
@@ -75,7 +75,9 @@ void IR_SendByteNEC(u8 byte, bool inverse) {
 // IR Command (NECext)
 void IR_SendNECext(u8 adrl, u8 adrm, u8 datal, u8 datam, bool invert_dm) {
     // Prepare system to serve an IR request
+    #ifdef NINTENDOWII
     u32 restoreLevel = IRQ_Disable();
+    #endif
 
     // 9mS Burst (Signal Data Start).
     IR_Transmit(IR_NEC_CAR_FREQ, IR_NEC_BGN_SPACE, 0.5f);
@@ -93,13 +95,17 @@ void IR_SendNECext(u8 adrl, u8 adrm, u8 datal, u8 datam, bool invert_dm) {
     IR_Transmit(IR_NEC_CAR_FREQ, IR_NEC_BURST, 0.5f);
 
     // We're done
+    #ifdef NINTENDOWII
     IRQ_Restore(restoreLevel);
+    #endif
 }
 
 // IR Command (NEC, Standard)
 void IR_SendNEC(u8 adr, u8 data) {
     // Prepare system to serve an IR request.
+    #ifdef NINTENDOWII
     u32 restoreLevel = IRQ_Disable();
+    #endif
 
     // 9mS Burst (Signal Data Start).
     IR_Transmit(IR_NEC_CAR_FREQ, IR_NEC_BGN_SPACE, 0.5f);
@@ -117,5 +123,7 @@ void IR_SendNEC(u8 adr, u8 data) {
     IR_Transmit(IR_NEC_CAR_FREQ, IR_NEC_BURST, 0.5f);
 
     // We're done
+    #ifdef NINTENDOWII
     IRQ_Restore(restoreLevel);
+    #endif
 }

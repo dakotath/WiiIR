@@ -3,10 +3,26 @@
 #define WIIIR_IR_H
 
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef NINTENDOWII
+#include <fat.h>
 #include <gccore.h>
 #include <wiiuse/wpad.h>
+#else
+#define _XML_NO_MSXML
+#include <msxml.h>
+
+typedef uint8_t   u8;
+typedef uint16_t  u16;
+typedef uint32_t  u32;
+typedef uint64_t  u64;
+
+typedef int8_t    s8;
+typedef int16_t   s16;
+typedef int32_t   s32;
+typedef int64_t   s64;
 #endif
 
 // SDL2 Video Rendering
@@ -321,28 +337,28 @@ static const std::vector<std::string> WiiButtons = {
 };
 #else
 static const std::vector<std::string> WiiButtons = {
-    "SDLK_UP",
-    "SDLK_DOWN",
-    "SDLK_LEFT",
-    "SDLK_RIGHT",
-    "SDLK_A",
-    "SDLK_B",
-    "SDLK_KP_1",
-    "SDLK_KP_2",
-    "SDLK_KP_PLUS",
-    "SDLK_KP_MINUS",
-    "SDLK_KP_ENTER",
-    "SDLK_N",
-    "SDLK_M",
-    "SDLK_Q",
-    "SDLK_W",
-    "SDLK_E",
-    "SDLK_R",
-    "SDLK_T",
-    "SDLK_Y",
-    "SDLK_U",
-    "SDLK_I",
-    "SDLK_O",
+    "UP",       // VK_UP
+    "DOWN",     // VK_DOWN
+    "LEFT",     // VK_LEFT
+    "RIGHT",    // VK_RIGHT
+    "A",        // 'A' key
+    "B",        // 'B' key
+    "1",        // '1' key
+    "2",        // '2' key
+    "PLUS",     // VK_OEM_PLUS
+    "MINUS",    // VK_OEM_MINUS
+    "ENTER",    // VK_RETURN
+    "N",        // 'N' key
+    "M",        // 'M' key
+    "Q",        // 'Q' key
+    "W",        // 'W' key
+    "E",        // 'E' key
+    "R",        // 'R' key
+    "T",        // 'T' key
+    "Y",        // 'Y' key
+    "U",        // 'U' key
+    "I",        // 'I' key
+    "O",        // 'O' key
 };
 #endif
 
@@ -377,7 +393,7 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags);
 // Helper Functions.
 void StartUI();
 void ShutdownUI();
-void SetCursor(int x, int y);
+void SetCursorApp(int x, int y);
 void SetColors(Color background, Color foreground);
 void ClearScreen();
 void StopCritical(const char* msg, const char* running_func, const char* occuring_file, int lcall, uint32_t code);

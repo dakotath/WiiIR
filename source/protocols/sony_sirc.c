@@ -76,7 +76,9 @@ void IR_SendByteSIRC(u8 byte, u8 length) {
 */
 void IR_SendSIRC(IRMode_SIRC mode, u8 address, u16 data) {
     // Prepare system to serve an IR request
+    #ifdef NINTENDOWII
     u32 restoreLevel = IRQ_Disable();
+    #endif
 
     // Extract the real data.
     u8 command, extended;
@@ -146,6 +148,8 @@ void IR_SendSIRC(IRMode_SIRC mode, u8 address, u16 data) {
     // ------------------------
     // Done
     TX_DONE:
+    #ifdef NINTENDOWII
     IRQ_Restore(restoreLevel);
+    #endif
     return;
 }

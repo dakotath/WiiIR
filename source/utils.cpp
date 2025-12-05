@@ -13,11 +13,6 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 
-// DevKitPPC Wii
-#include <fat.h>
-#include <gccore.h>
-#include <wiiuse/wpad.h>
-
 #include <SDL.h>
 #ifdef _WIN32
 #include <windows.h>        // SetProcessDPIAware()
@@ -55,6 +50,7 @@ void ShutdownUI()
 
     // 7. Shutdown GX manually
     // VERY IMPORTANT on Wii or FIFO/interrupts remain active.
+    #ifdef NINTENDOWII
     VIDEO_SetBlack(TRUE);
     VIDEO_Flush();
     VIDEO_WaitVSync();
@@ -63,6 +59,7 @@ void ShutdownUI()
     GX_AbortFrame();
     GX_Flush();
     GX_DrawDone();
+    #endif
 }
 
 void StartUI() {
@@ -87,6 +84,7 @@ void StartUI() {
 // Initializer.
 void Init() {
 	// Initialise the video system
+    #ifdef NINTENDOWII
 	VIDEO_Init();
 
 	// This function initialises the attached controllers
@@ -106,11 +104,12 @@ void Init() {
 
     // SD Card
     fatInitDefault();
+    #endif
 
     // Welcome
     SetColors(BLACK, WHITE);   // Default color mode.
     ClearScreen();             // Clear Screen.
-    SetCursor(0,2);            // Reset Cursor Position.
+    SetCursorApp(0,2);            // Reset Cursor Position.
 }
 
 // Deinitializer.
@@ -124,6 +123,7 @@ void Deinit() {
     //WPAD_Shutdown();      // Stop Wii Remote system
 
     // This resets FIFO, interrupts, and VI scheduling:
+    #ifdef NINTENDOWII
     GX_AbortFrame();
     GX_Flush();
     GX_DrawDone();
@@ -140,10 +140,11 @@ void Deinit() {
         free(MEM_K1_TO_K0(xfb));
         xfb = NULL;
     }
+    #endif
 }
 
 // Function to set the terminal cursor position at X,Y cordinates.
-void SetCursor(int x, int y) {
+void SetCursorApp(int x, int y) {
     printf("\x1b[%d;%dH", y,x);
 }
 
@@ -163,7 +164,7 @@ void StopCritical(const char* msg, const char* running_func, const char* occurin
     // Clear the display with blue.
     SetColors(BLUE, WHITE);
     ClearScreen();
-    SetCursor(0,2);
+    SetCursorApp(0,2);
 
     // Error
     printf("DEMO ERROR 0x%04x:\n\n", code);
@@ -182,6 +183,7 @@ void StopCritical(const char* msg, const char* running_func, const char* occurin
     );
 
     // Critial Loop.
+    #ifdef NINTENDOWII
     while(true) {
         // Scan WPAD
         WPAD_ScanPads();
@@ -193,6 +195,7 @@ void StopCritical(const char* msg, const char* running_func, const char* occurin
         // Wait VSync.
         VIDEO_WaitVSync();
     }
+    #endif
 
     // Notify that the system is exiting.
     printf("\nEXITING...\n");

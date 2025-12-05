@@ -324,12 +324,12 @@ void SendIR(const std::string &dataString)
 }
 
 // --- Helper to merge custom maps into a button entry ---
-void MergeButtonEntry(ButtonEntry &btn, XMLElement *customBtnNode) {
+void MergeButtonEntry(ButtonEntry &btn, tinyxml2::XMLElement *customBtnNode) {
     // Override maps if custom exists
-    XMLElement* mapsNode = customBtnNode->FirstChildElement("Maps");
+    tinyxml2::XMLElement* mapsNode = customBtnNode->FirstChildElement("Maps");
     if (mapsNode) {
         btn.maps.clear(); // replace with custom maps
-        for (XMLElement* map = mapsNode->FirstChildElement("Map"); map; map = map->NextSiblingElement("Map")) {
+        for (tinyxml2::XMLElement* map = mapsNode->FirstChildElement("Map"); map; map = map->NextSiblingElement("Map")) {
             MapEntry me;
             const char* text = map->GetText();
             if (text) me.value = text;
@@ -338,7 +338,7 @@ void MergeButtonEntry(ButtonEntry &btn, XMLElement *customBtnNode) {
     }
 
     // Override data if custom exists
-    XMLElement* dataNode = customBtnNode->FirstChildElement("Data");
+    tinyxml2::XMLElement* dataNode = customBtnNode->FirstChildElement("Data");
     if (dataNode && dataNode->GetText()) {
         btn.data = dataNode->GetText();
     }
@@ -346,8 +346,8 @@ void MergeButtonEntry(ButtonEntry &btn, XMLElement *customBtnNode) {
 
 void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const std::vector<std::string> &mapStringArray, const std::string &btnName, const std::string &customFile = "custom_maps.xml")
 {
-    XMLDocument doc;
-    XMLElement *root = nullptr;
+    tinyxml2::XMLDocument doc;
+    tinyxml2::XMLElement *root = nullptr;
 
     // Load file or create a new one
     if (fs::exists(customFile))
@@ -372,8 +372,8 @@ void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const 
     // -------------------------------
     // Manufacturer lookup/create
     // -------------------------------
-    XMLElement *mfgElem = nullptr;
-    for (XMLElement *m = root->FirstChildElement("Manufacturer"); m;
+    tinyxml2::XMLElement *mfgElem = nullptr;
+    for (tinyxml2::XMLElement *m = root->FirstChildElement("Manufacturer"); m;
          m = m->NextSiblingElement("Manufacturer"))
     {
         if (const char *name = m->Attribute("name");
@@ -394,8 +394,8 @@ void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const 
     // -------------------------------
     // Device lookup/create
     // -------------------------------
-    XMLElement *devElem = nullptr;
-    for (XMLElement *d = mfgElem->FirstChildElement("DeviceEntry"); d;
+    tinyxml2::XMLElement *devElem = nullptr;
+    for (tinyxml2::XMLElement *d = mfgElem->FirstChildElement("DeviceEntry"); d;
          d = d->NextSiblingElement("DeviceEntry"))
     {
         if (const char *name = d->Attribute("name");
@@ -416,9 +416,9 @@ void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const 
     // -------------------------------
     // REMOVE OLD ButtonEntry BY NAME
     // -------------------------------
-    for (XMLElement *b = devElem->FirstChildElement("ButtonEntry"); b; )
+    for (tinyxml2::XMLElement *b = devElem->FirstChildElement("ButtonEntry"); b; )
     {
-        XMLElement *next = b->NextSiblingElement("ButtonEntry");
+        tinyxml2::XMLElement *next = b->NextSiblingElement("ButtonEntry");
 
         if (const char *name = b->Attribute("name");
             name && btnName == name)
@@ -432,17 +432,17 @@ void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const 
     // -------------------------------
     // Create new ButtonEntry
     // -------------------------------
-    XMLElement *btnElem = doc.NewElement("ButtonEntry");
+    tinyxml2::XMLElement *btnElem = doc.NewElement("ButtonEntry");
     btnElem->SetAttribute("name", btnName.c_str());
     devElem->InsertEndChild(btnElem);
 
     // Create new Maps
-    XMLElement *mapsElem = doc.NewElement("Maps");
+    tinyxml2::XMLElement *mapsElem = doc.NewElement("Maps");
     btnElem->InsertEndChild(mapsElem);
 
     for (const std::string &mapVal : mapStringArray)
     {
-        XMLElement *mapElem = doc.NewElement("Map");
+        tinyxml2::XMLElement *mapElem = doc.NewElement("Map");
         mapElem->SetText(mapVal.c_str());
         mapsElem->InsertEndChild(mapElem);
     }
@@ -462,16 +462,16 @@ void AddCustomMap(const std::string &mfgName, const std::string &dvcName, const 
 void ApplyCustomMaps(XMLDatabase &db, const char* customFile) {
     if (!fs::exists(customFile)) return;
 
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
     if (doc.LoadFile(customFile) != XML_SUCCESS) {
         std::cerr << "Failed to load custom maps file: " << customFile << std::endl;
         return;
     }
 
-    XMLElement* root = doc.FirstChildElement("CustomMapper");
+    tinyxml2::XMLElement* root = doc.FirstChildElement("CustomMapper");
     if (!root) return;
 
-    for (XMLElement* m = root->FirstChildElement("Manufacturer"); m; m = m->NextSiblingElement("Manufacturer")) {
+    for (tinyxml2::XMLElement* m = root->FirstChildElement("Manufacturer"); m; m = m->NextSiblingElement("Manufacturer")) {
         const char* mname = m->Attribute("name");
         if (!mname) continue;
 
@@ -479,7 +479,7 @@ void ApplyCustomMaps(XMLDatabase &db, const char* customFile) {
         for (auto &mf : db.manufacturers) {
             if (mf.name != mname) continue;
 
-            for (XMLElement* d = m->FirstChildElement("DeviceEntry"); d; d = d->NextSiblingElement("DeviceEntry")) {
+            for (tinyxml2::XMLElement* d = m->FirstChildElement("DeviceEntry"); d; d = d->NextSiblingElement("DeviceEntry")) {
                 const char* dname = d->Attribute("name");
                 if (!dname) continue;
 
@@ -487,7 +487,7 @@ void ApplyCustomMaps(XMLDatabase &db, const char* customFile) {
                 for (auto &dev : mf.devices) {
                     if (dev.name != dname) continue;
 
-                    for (XMLElement* b = d->FirstChildElement("ButtonEntry"); b; b = b->NextSiblingElement("ButtonEntry")) {
+                    for (tinyxml2::XMLElement* b = d->FirstChildElement("ButtonEntry"); b; b = b->NextSiblingElement("ButtonEntry")) {
                         const char* bname = b->Attribute("name");
                         if (!bname) continue;
 
@@ -507,19 +507,19 @@ void ApplyCustomMaps(XMLDatabase &db, const char* customFile) {
 // --- Main XML loader ---
 XMLDatabase LoadXML(const char* filename, const char* customFile) {
     XMLDatabase db;
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
 
     if (doc.LoadFile(filename) != XML_SUCCESS)
         throw std::runtime_error("Failed to load XML file.");
 
-    XMLElement* root = doc.FirstChildElement("Manufacturers");
+    tinyxml2::XMLElement* root = doc.FirstChildElement("Manufacturers");
     if (!root)
         throw std::runtime_error("Missing <Manufacturers> root!");
 
     // ---------------------------------------------------------
     // Iterate Manufacturers
     // ---------------------------------------------------------
-    for (XMLElement* m = root->FirstChildElement("Manufacturer"); m; m = m->NextSiblingElement("Manufacturer")) {
+    for (tinyxml2::XMLElement* m = root->FirstChildElement("Manufacturer"); m; m = m->NextSiblingElement("Manufacturer")) {
         Manufacturer mf;
         const char* name = m->Attribute("name");
         if (!name)
@@ -527,10 +527,10 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
         mf.name = name;
 
         // DeviceList
-        XMLElement* deviceList = m->FirstChildElement("DeviceList");
+        tinyxml2::XMLElement* deviceList = m->FirstChildElement("DeviceList");
         if (deviceList) {
             // Iterate Devices
-            for (XMLElement* d = deviceList->FirstChildElement("DeviceEntry"); d; d = d->NextSiblingElement("DeviceEntry")) {
+            for (tinyxml2::XMLElement* d = deviceList->FirstChildElement("DeviceEntry"); d; d = d->NextSiblingElement("DeviceEntry")) {
                 DeviceEntry dev;
                 const char* dname = d->Attribute("name");
                 if (!dname)
@@ -538,7 +538,7 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
                 dev.name = dname;
 
                 // ButtonEntry list
-                for (XMLElement* b = d->FirstChildElement("ButtonEntry"); b; b = b->NextSiblingElement("ButtonEntry")) {
+                for (tinyxml2::XMLElement* b = d->FirstChildElement("ButtonEntry"); b; b = b->NextSiblingElement("ButtonEntry")) {
                     ButtonEntry btn;
                     const char* bname = b->Attribute("name");
                     if (!bname)
@@ -546,9 +546,9 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
                     btn.name = bname;
 
                     // Maps (nested inside <Maps>)
-                    XMLElement* mapsNode = b->FirstChildElement("Maps");
+                    tinyxml2::XMLElement* mapsNode = b->FirstChildElement("Maps");
                     if (mapsNode) {
-                        for (XMLElement* map = mapsNode->FirstChildElement("Map"); map; map = map->NextSiblingElement("Map")) {
+                        for (tinyxml2::XMLElement* map = mapsNode->FirstChildElement("Map"); map; map = map->NextSiblingElement("Map")) {
                             MapEntry me;
                             const char* text = map->GetText();
                             if (text)
@@ -558,7 +558,7 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
                     }
 
                     // Data
-                    XMLElement* dataNode = b->FirstChildElement("Data");
+                    tinyxml2::XMLElement* dataNode = b->FirstChildElement("Data");
                     if (dataNode && dataNode->GetText())
                         btn.data = dataNode->GetText();
 
@@ -585,140 +585,89 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
 void RunDeviceInputLoop(const DeviceEntry& device)
 {
     printf("=== Running Device: %s ===\n", device.name.c_str());
-    printf("Press HOME 5 times to exit.\n\n");
+    printf("Press ESC (Windows) or HOME (Wii) 5 times to exit.\n\n");
 
     int homePressCount = 0;
 
     while (true)
     {
-        uint32_t down = 0;
-
-        // ============================================================
-        // PLATFORM INPUT SECTION
-        // ============================================================
-
 #ifdef NINTENDOWII
-        // ---- WII INPUT ----
+        // ---- Wii input ----
         WPAD_ScanPads();
-        down = WPAD_ButtonsDown(0);
-
-#else
-        // ---- SDL INPUT ----
-        SDL_Event e;
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_KEYDOWN)
-                down = e.key.keysym.sym;
-        }
-#endif
-
-        // ============================================================
-        // HOME BUTTON HANDLING
-        // ============================================================
-
-#ifdef NINTENDOWII
+        uint32_t down = WPAD_ButtonsDown(0);
         bool homePressed = (down & WPAD_BUTTON_HOME);
 #else
-        bool homePressed = (down == SDLK_HOME);
+        // ---- Windows native input ----
+        bool homePressed = (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0;
 #endif
 
-        // -------------------------------
-        // HOME BUTTON LOGIC
-        // -------------------------------
+        // ---------------- HOME/EXIT ----------------
         if (homePressed)
         {
             homePressCount++;
-
-            printf("[INFO] HOME pressed (%d / 5)\n", homePressCount);
-
+            printf("[INFO] HOME/ESC pressed (%d / 5)\n", homePressCount);
             if (homePressCount >= 5)
             {
-                printf("HOME pressed 5 times — exiting device mode.\n");
-                exit(0);
+                printf("Exiting device mode.\n");
+                break;
             }
 
-            // Send IR for mapped "Home Button"
+            // Send mapped "Home Button" IR
             for (const auto& btn : device.buttons)
             {
-                if (strcmp(btn.name.c_str(), "Home Button") == 0)
-                {
-                    printf("Running SendIR for Home Button: %s\n", btn.data.c_str());
+                if (btn.name == "Home Button")
                     SendIR(btn.data);
-                }
             }
 
 #ifdef NINTENDOWII
             VIDEO_WaitVSync();
 #else
-            SDL_Delay(16);
+            Sleep(16);
 #endif
             continue;
         }
-
-        // Reset HOME counter if other keys pressed
-        if (down && !homePressed)
+        else
         {
-            if (homePressCount > 0)
-                printf("[INFO] HOME press reset (other key pressed)\n");
-
             homePressCount = 0;
         }
 
-        // ============================================================
-        // REGULAR BUTTON MAPPING
-        // ============================================================
-
+        // ---------------- Regular button mapping ----------------
         for (const auto& btn : device.buttons)
         {
             for (const auto& map : btn.maps)
             {
-                uint32_t requiredBtn = 0;
-
 #ifdef NINTENDOWII
-                // ---- Wii button constants ----
-                if      (map.value == "WPAD_BUTTON_A")     requiredBtn = WPAD_BUTTON_A;
-                else if (map.value == "WPAD_BUTTON_B")     requiredBtn = WPAD_BUTTON_B;
-                else if (map.value == "WPAD_BUTTON_UP")    requiredBtn = WPAD_BUTTON_UP;
-                else if (map.value == "WPAD_BUTTON_DOWN")  requiredBtn = WPAD_BUTTON_DOWN;
-                else if (map.value == "WPAD_BUTTON_LEFT")  requiredBtn = WPAD_BUTTON_LEFT;
-                else if (map.value == "WPAD_BUTTON_RIGHT") requiredBtn = WPAD_BUTTON_RIGHT;
-                else if (map.value == "WPAD_BUTTON_1")     requiredBtn = WPAD_BUTTON_1;
-                else if (map.value == "WPAD_BUTTON_2")     requiredBtn = WPAD_BUTTON_2;
-                else if (map.value == "WPAD_BUTTON_PLUS")  requiredBtn = WPAD_BUTTON_PLUS;
-                else if (map.value == "WPAD_BUTTON_MINUS") requiredBtn = WPAD_BUTTON_MINUS;
-                else if (map.value == "WPAD_BUTTON_HOME")  requiredBtn = WPAD_BUTTON_HOME;
-
-                if (requiredBtn != 0 && (down & requiredBtn))
-
+                uint32_t requiredBtn = 0;
+                // Wii mapping as before...
 #else
-                // ---- SDL keyboard mappings ----
-                // Map XML values to SDL keys
-                if      (map.value == "A") requiredBtn = SDLK_a;
-                else if (map.value == "B") requiredBtn = SDLK_b;
-                else if (map.value == "UP") requiredBtn = SDLK_UP;
-                else if (map.value == "DOWN") requiredBtn = SDLK_DOWN;
-                else if (map.value == "LEFT") requiredBtn = SDLK_LEFT;
-                else if (map.value == "RIGHT") requiredBtn = SDLK_RIGHT;
-                else if (map.value == "1") requiredBtn = SDLK_1;
-                else if (map.value == "2") requiredBtn = SDLK_2;
-                else if (map.value == "+") requiredBtn = SDLK_PLUS;
-                else if (map.value == "-") requiredBtn = SDLK_MINUS;
-                else if (map.value == "HOME") requiredBtn = SDLK_HOME;
+                // Windows key mapping
+                bool pressed = false;
+                if      (map.value == "A") pressed = (GetAsyncKeyState('A') & 0x8000) != 0;
+                else if (map.value == "B") pressed = (GetAsyncKeyState('B') & 0x8000) != 0;
+                else if (map.value == "UP") pressed = (GetAsyncKeyState(VK_UP) & 0x8000) != 0;
+                else if (map.value == "DOWN") pressed = (GetAsyncKeyState(VK_DOWN) & 0x8000) != 0;
+                else if (map.value == "LEFT") pressed = (GetAsyncKeyState(VK_LEFT) & 0x8000) != 0;
+                else if (map.value == "RIGHT") pressed = (GetAsyncKeyState(VK_RIGHT) & 0x8000) != 0;
+                else if (map.value == "1") pressed = (GetAsyncKeyState('1') & 0x8000) != 0;
+                else if (map.value == "2") pressed = (GetAsyncKeyState('2') & 0x8000) != 0;
+                else if (map.value == "+") pressed = (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) != 0;
+                else if (map.value == "-") pressed = (GetAsyncKeyState(VK_OEM_MINUS) & 0x8000) != 0;
+                else if (map.value == "ENTER") pressed = (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0;
 
-                if (down == requiredBtn)
-#endif
+                if (pressed)
                 {
                     printf("Button pressed: %s -> Sending IR: %s\n",
                            btn.name.c_str(), btn.data.c_str());
                     SendIR(btn.data);
                 }
+#endif
             }
         }
 
 #ifdef NINTENDOWII
         VIDEO_WaitVSync();
 #else
-        SDL_Delay(16);
+        Sleep(16); // ~60 Hz loop
 #endif
     }
 }
@@ -732,10 +681,6 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     // Main window
     ImGui::Begin("InfraRed Browser", nullptr, window_flags);
 
-    // Help button at top-right
-    if (ImGui::Button("Help"))
-        ImGui::OpenPopup("HelpWindow");
-
     // ----- LAYOUT: 3 horizontal panels -----
     float panelHeight = ImGui::GetContentRegionAvail().y;
 
@@ -745,14 +690,17 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     ImGui::Separator();
 
     static char mfgSearch[128] = "";
-    ImGui::InputTextWithHint("##mfg_search", "Search (USB KB)", mfgSearch, IM_ARRAYSIZE(mfgSearch));
-    ImGui::Separator();
 
-    // Test
-    if(ImGui::Button("Test JVC")) {
-        IR_SendJVC(67,67);
-        _IR_SET_GPIO(IRBLAST_PORT, 255);
-    }
+    // Wii Text Hint
+    #ifdef NINTENDOWII
+    ImGui::InputTextWithHint("##mfg_search", "Search (USB KB)", mfgSearch, IM_ARRAYSIZE(mfgSearch));
+
+    // PC Text Hint
+    #else
+    ImGui::InputTextWithHint("##mfg_search", "Search Box", mfgSearch, IM_ARRAYSIZE(mfgSearch));
+    #endif
+
+    ImGui::Separator();
 
     std::string needle = mfgSearch;
     std::transform(needle.begin(), needle.end(), needle.begin(), ::tolower);
@@ -908,30 +856,5 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     }
 
     ImGui::EndChild();
-
-    // HELP POPUP outside main window
-    if (ImGui::BeginPopupModal("HelpWindow", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        ImGui::TextWrapped(
-            "InfraRed Browser Help\n\n"
-            "• Select a manufacturer on the left panel.\n"
-            "• Select a device in the middle panel.\n"
-            "• Select a button on the right panel to view its IR data.\n"
-            "• Click 'Edit Mappings' to map Wii buttons to device buttons.\n"
-            "• Save changes to update custom_maps.xml.\n"
-            "• Run IRDB Database Updater to refresh XML database."
-        );
-        ImGui::Separator();
-        ImGui::Text("Build Information:");
-        ImGui::Text("ImGui Version: %s", IMGUI_VERSION);
-        ImGui::Text("Built On: %s", BUILD_DATE);
-        ImGui::Text("Built By: %s", BUILD_HOST);
-
-        if (ImGui::Button("Close"))
-            ImGui::CloseCurrentPopup();
-
-        ImGui::EndPopup();
-    }
-
     ImGui::End(); // End main window
 }

@@ -1,6 +1,8 @@
 build/
+buildwin/
 bin/
 tests/
 *.dol
 *.elf
 .vscode/
+IRDB.xml

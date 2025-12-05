@@ -221,7 +221,9 @@ int main(int, char**)
         ImGui::SetNextWindowSize(viewport->Size);
         //ImGui::SetNextWindowViewport(viewport->ID);
 
-        window_flags |= ImGuiWindowFlags_None;
+        window_flags |= ImGuiWindowFlags_NoTitleBar |
+                        ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove;
 
         // remove rounding/border
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);

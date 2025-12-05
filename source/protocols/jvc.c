@@ -57,7 +57,9 @@ static void IR_SendByte_JVC(uint8_t b)
 // Main JVC function
 void IR_SendJVC(uint8_t address, uint8_t command)
 {
+    #ifdef NINTENDOWII
     uint32_t irq = IRQ_Disable();
+    #endif
 
     // Header
     IR_Transmit(IR_JVC_CAR_FREQ, IR_JVC_BGN_SPACE, 0.33f);
@@ -70,5 +72,7 @@ void IR_SendJVC(uint8_t address, uint8_t command)
     // Stop bit
     //IR_Transmit(IR_JVC_CAR_FREQ, IR_JVC_STOP, 0.33f);
 
+    #ifdef NINTENDOWII
     IRQ_Restore(irq);
+    #endif
 }

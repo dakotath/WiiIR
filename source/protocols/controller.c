@@ -42,10 +42,12 @@
 // you might be here.
 void _IR_SET_GPIO(u32 gpio, u32 value)
 {
+    #ifdef NINTENDOWII
     u32 val = (*_gpio_out_reg & ~gpio);
     if (value)
         val |= gpio;
     *_gpio_out_reg = val;
+    #endif
 }
 
 // Transmit a specified carrier signal with a duty cycle (0.0 - 1.0) for the specified time.
@@ -67,10 +69,14 @@ void IR_Transmit(float carrier_frequency, int duration_us, float duty_cycle)
     // Loop through each cycle
     for (int i = 0; i < cycles; i++)
     {
+        #ifdef NINTENDOWII
         _IR_SET_GPIO(0x100, 255);  // IR LED ON
         usleep((int)on_time);      // Wait for the calculated on-time.
 
         _IR_SET_GPIO(0x100, 0);    // IR LED OFF
         usleep((int)off_time);     // Wait for the calculated off-time.
+        #else
+        printf("%d %d ", (int)on_time, (int)off_time);
+        #endif
     }
 }

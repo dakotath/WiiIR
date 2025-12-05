@@ -57,7 +57,9 @@ static void IR_SendByte_Samsung32(uint8_t b)
 // Main Samsung32 function
 void IR_SendSamsung32(uint8_t address, uint8_t command)
 {
+    #ifdef NINTENDOWII
     uint32_t irq = IRQ_Disable();
+    #endif
 
     // Header
     IR_Transmit(IR_SAMSUNG32_CAR_FREQ, IR_SAMSUNG32_BGN_SPACE, 0.33f);
@@ -71,5 +73,7 @@ void IR_SendSamsung32(uint8_t address, uint8_t command)
     // Stop bit
     IR_Transmit(IR_SAMSUNG32_CAR_FREQ, IR_SAMSUNG32_STOP, 0.33f);
 
+    #ifdef NINTENDOWII
     IRQ_Restore(irq);
+    #endif
 }
