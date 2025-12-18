@@ -89,5 +89,7 @@ void setup_osreport_redirection() {
     printf("%s() [INFO]: Not needed on this platform.\n", __FUNCTION__);
 } void restore_original_cerr() {
     printf("%s() [INFO]: Not needed on this platform.\n", __FUNCTION__);
+} void restore_original_cout() {
+    printf("%s() [INFO]: Not needed on this platform.\n", __FUNCTION__);
 }
 #endif

@@ -593,7 +593,10 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
     return db;
 }
 
-// Call this with device.buttons from your XML
+// Call this with device.buttons from XML
+// TODO: Reimplement WiiIR header to have premapped button
+// definitions to avoid defining static string names in this
+// function.
 void RunDeviceInputLoop(const DeviceEntry& device)
 {
     restore_original_cout();
@@ -653,26 +656,25 @@ void RunDeviceInputLoop(const DeviceEntry& device)
                 if      (map.value == "WPAD_BUTTON_UP") pressed = (down & WPAD_BUTTON_UP) ? 1 : 0;
                 if      (map.value == "WPAD_BUTTON_DOWN") pressed = (down & WPAD_BUTTON_DOWN) ? 1 : 0;
                 if      (map.value == "WPAD_BUTTON_LEFT") pressed = (down & WPAD_BUTTON_LEFT) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_RIGHT") pressed = (down & WPAD_BUTTON_RIGHT) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_A") pressed = (down & WPAD_BUTTON_A) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_B") pressed = (down & WPAD_BUTTON_B) ? 1 : 0;
                 if      (map.value == "WPAD_BUTTON_1") pressed = (down & WPAD_BUTTON_1) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_2") pressed = (down & WPAD_BUTTON_2) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_PLUS") pressed = (down & WPAD_BUTTON_PLUS) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_MINUS") pressed = (down & WPAD_BUTTON_MINUS) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_NUNCHUK_C") pressed = (down & WPAD_NUNCHUK_C) ? 1 : 0;
+                if      (map.value == "WPAD_NUNCHUK_Z") pressed = (down & WPAD_NUNCHUK_Z) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_A") pressed = (down & WPAD_CLASSIC_BUTTON_A) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_B") pressed = (down & WPAD_CLASSIC_BUTTON_B) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_X") pressed = (down & WPAD_CLASSIC_BUTTON_X) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_Y") pressed = (down & WPAD_CLASSIC_BUTTON_Y) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_Z") pressed = (down & WPAD_CLASSIC_BUTTON_Z) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_L") pressed = (down & WPAD_CLASSIC_BUTTON_L) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_R") pressed = (down & WPAD_CLASSIC_BUTTON_R) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_FULL_L") pressed = (down & WPAD_CLASSIC_BUTTON_FULL_L) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_FULL_R") pressed = (down & WPAD_CLASSIC_BUTTON_FULL_R) ? 1 : 0;
                 if (pressed)
                 {
                     printf("Button pressed: %s -> Sending IR: %s\n",
