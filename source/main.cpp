@@ -87,6 +87,7 @@
 #include "imgui_impl_sdlrenderer2.h"
 #include "WiiIR/IR.hpp"
 #include <stdio.h>
+#include <fstream>
 
 // Font
 static_assert(true, "imgui_freetype included");
@@ -152,7 +153,7 @@ typedef struct {
     size_t cmd_len;
 } menustruct_t;
 
-// Menu
+// Old Christmas Tree controller menu (kept for lolz)
 menustruct_t menu[15] = {
     (menustruct_t){"Power On", tree_power_on, tree_power_on_len},
     (menustruct_t){"Power Off", tree_power_off, tree_power_off_len},
@@ -174,6 +175,10 @@ menustruct_t menu[15] = {
 // Main code
 int main(int, char**)
 {
+    // Set OSReport direction
+    setup_osreport_redirection();
+
+    // Start GUI
     StartUI();
     XMLDatabase db = LoadXML("database.xml", "custom_maps.xml");
 
@@ -186,11 +191,9 @@ int main(int, char**)
     io.Fonts->AddFontFromMemoryTTF((void*)DroidSans_ttf, DroidSans_ttf_size, 16.0f, &cfg);
     io.Fonts->Build();
 
-    // Our state
-    ImVec4 clear_color = ImVec4(0.25f, 0.5f, 0.5f, 1.00f);
-
     // Main loop
     bool done = false;
+    float frame = 0.0f;
     ImGuiWindowFlags window_flags;
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     while (!done)
@@ -221,22 +224,32 @@ int main(int, char**)
         ImGui::SetNextWindowSize(viewport->Size);
         //ImGui::SetNextWindowViewport(viewport->ID);
 
-        window_flags |= ImGuiWindowFlags_NoTitleBar |
-                        ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove;
+        window_flags |= 
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove   |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoTitleBar |   // <-- REQUIRED!!!
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoSavedSettings;
 
         // remove rounding/border
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0f);
         DrawXMLBrowser(db, window_flags);
-        ImGui::PopStyleVar(3);
+        //ImGui::PopStyleVar(3);
 
         // Rendering
         ImGui::Render();
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+        
+        frame += 1.0f;
+        SDL_Texture* perlinTexture = GeneratePS3Background(renderer, 64, 128, frame, 1);
+        SDL_RenderCopy(renderer, perlinTexture, nullptr, nullptr);
+        FreeTexture(perlinTexture);
+
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(renderer);
     }

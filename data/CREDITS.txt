@@ -1,0 +1,103 @@
+============================================================
+                     WiiIR (codename: ControlMii)
+                           C R E D I T S
+============================================================
+
+WiiIR — also known during development as “ControlMii” — is the result of
+a long, dedicated effort fueled by persistence, late nights, experimentation,
+and a passion for understanding the technologies that shaped the Nintendo Wii.
+
+This project was not created overnight. WiiIR stands upon months of deep
+research into obscure hardware behaviors, reverse-engineering practices,
+archived documentation, and long-lost technical articles buried in the far
+corners of the internet. Much of the information required to make WiiIR
+possible no longer exists in modern circulation, and recovering it required
+a combination of patience, luck, and determination. Every breakthrough was
+earned through careful study, testing, and verification.
+
+------------------------------------------------------------
+                    CORE DEVELOPMENT TEAM
+------------------------------------------------------------
+
+WiiIR (ControlMii) was designed, engineered, and brought to life by:
+
+    • Dakota Thorpe  
+    • Larsen Vallecillo  
+
+Their commitment was the driving force behind every component of the project.
+From hardware analysis, IR protocol decoding, and software design, to
+countless prototype iterations and debugging sessions — Dakota and Larsen
+invested both time and passion to ensure this project functioned naturally
+on real Wii hardware.
+
+------------------------------------------------------------
+                     DEVELOPMENT TIMELINE
+------------------------------------------------------------
+
+The journey of WiiIR consisted of:
+
+    • ~6 months of research and investigation  
+    • ~1.5 years of development, refinement, and testing before the initial release  
+
+During this time, both developers dove into microcontroller behavior,
+oscilloscope captures, Wii Remote IR communication, hardware timing quirks,
+and the interaction between custom IR patterns and the Wii’s sensor systems.
+Every version brought new discoveries, challenges, and improvements.
+
+------------------------------------------------------------
+            LEAD DEVELOPER PERSONAL ACKNOWLEDGEMENT
+------------------------------------------------------------
+
+A special note from the core lead developer, **Dakota Thorpe**:
+
+At the time of WiiIR’s initial publication, Dakota was still a **high school
+student**, balancing coursework, exams, extracurricular responsibilities,
+and everyday life alongside the intense process of building and refining
+this project. Despite these challenges, development continued steadily —
+often late at night, during weekends, or in between school obligations.
+
+Dakota extends sincere gratitude to everyone who remained patient throughout
+the project’s long development period. Thank you for supporting this effort,
+for waiting through delays, and for believing that the final release would
+be worth the time it took to complete. Your encouragement and understanding
+made the journey possible.
+
+------------------------------------------------------------
+                     TESTING & VERIFICATION
+------------------------------------------------------------
+
+A massive thank-you goes out to all **12 early testers** who volunteered to
+evaluate WiiIR on real Wii consoles. Their feedback, bug reports, patience,
+and willingness to test experimental builds contributed directly to the
+polish, stability, and accuracy of the final product.
+
+Your help transformed concepts into reality — WiiIR would not be the same
+without you.
+
+------------------------------------------------------------
+                     SPECIAL ACKNOWLEDGEMENTS
+------------------------------------------------------------
+
+We extend our gratitude to **SB-Projects.net** for their exceptionally
+well-documented and clearly formatted information on infrared communication
+protocols. Their detailed breakdowns were invaluable references during the
+reverse-engineering phase of the project, offering clarity where modern
+documentation fell short.
+
+Without their work, several aspects of this project would have taken far
+longer to decode.
+
+------------------------------------------------------------
+                       FINAL THANK YOU
+------------------------------------------------------------
+
+To everyone who supported the concept, encouraged development, contributed
+information, or simply showed interest in understanding the Wii’s IR system:
+thank you. WiiIR exists because of curiosity, community effort, and a shared
+desire to keep classic hardware alive, accessible, and better understood.
+
+WiiIR (codename ControlMii) is dedicated to all who value exploration,
+preservation, and creativity. If you would like to view the code license,
+you can go to "View->Open Source Licenses" from the main page.
+
+============================================================

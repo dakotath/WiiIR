@@ -80,9 +80,21 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
+#include "ImGuiFileDialog.h"
 #include "WiiIR/IR.hpp"
+#include "stb/stb_image_resize2.h"
 #include <stdio.h>
 
+#ifdef NINTENDOWII
+#include <sys/wait.h>
+#endif
+#include <unistd.h>
+
+// Text Files
+#include "CREDITS_txt.h"
+#include "LICENSE_txt.h"
+
+#include "cJSON.h"
 #include "tinyxml2.h"
 #include <string>
 #include <vector>
@@ -584,6 +596,7 @@ XMLDatabase LoadXML(const char* filename, const char* customFile) {
 // Call this with device.buttons from your XML
 void RunDeviceInputLoop(const DeviceEntry& device)
 {
+    restore_original_cout();
     printf("=== Running Device: %s ===\n", device.name.c_str());
     printf("Press ESC (Windows) or HOME (Wii) 5 times to exit.\n\n");
 
@@ -612,13 +625,6 @@ void RunDeviceInputLoop(const DeviceEntry& device)
                 break;
             }
 
-            // Send mapped "Home Button" IR
-            for (const auto& btn : device.buttons)
-            {
-                if (btn.name == "Home Button")
-                    SendIR(btn.data);
-            }
-
 #ifdef NINTENDOWII
             VIDEO_WaitVSync();
 #else
@@ -626,7 +632,11 @@ void RunDeviceInputLoop(const DeviceEntry& device)
 #endif
             continue;
         }
-        else
+        #ifdef NINTENDOWII
+        else if(down && !homePressed)
+        #else
+        else if(!homePressed)
+        #endif
         {
             homePressCount = 0;
         }
@@ -637,8 +647,38 @@ void RunDeviceInputLoop(const DeviceEntry& device)
             for (const auto& map : btn.maps)
             {
 #ifdef NINTENDOWII
-                uint32_t requiredBtn = 0;
-                // Wii mapping as before...
+                bool pressed = false;
+                // Wii Mappingsx
+                // TODO: Rewrite this
+                if      (map.value == "WPAD_BUTTON_UP") pressed = (down & WPAD_BUTTON_UP) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_DOWN") pressed = (down & WPAD_BUTTON_DOWN) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_LEFT") pressed = (down & WPAD_BUTTON_LEFT) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
+                if      (map.value == "WPAD_BUTTON_1") pressed = (down & WPAD_BUTTON_1) ? 1 : 0;
+                if (pressed)
+                {
+                    printf("Button pressed: %s -> Sending IR: %s\n",
+                           btn.name.c_str(), btn.data.c_str());
+                    SendIR(btn.data);
+                }
 #else
                 // Windows key mapping
                 bool pressed = false;
@@ -670,6 +710,78 @@ void RunDeviceInputLoop(const DeviceEntry& device)
         Sleep(16); // ~60 Hz loop
 #endif
     }
+
+    // Exit when done
+    exit(0);
+}
+
+// Render built in text file content
+void RenderBuiltInDocumentAsChild(const unsigned char content[], size_t content_size) {
+    ImGui::BeginChild("LicenseTextRegion", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::TextUnformatted(
+        reinterpret_cast<const char*>(content),
+        reinterpret_cast<const char*>(content + content_size)
+    );
+    ImGui::EndChild();
+}
+
+// Credits Window
+void ShowCreditsWindow(bool* p_open) {
+    ImGui::Begin("Software Credits", p_open, ImGuiWindowFlags_None);
+    RenderBuiltInDocumentAsChild(CREDITS_txt, CREDITS_txt_size);
+    ImGui::End();
+}
+
+// Open Source Licenses
+void ShowOSLWindow(bool* p_open) {
+    ImGui::Begin("Open Source Licenses", p_open, ImGuiWindowFlags_None);
+    RenderBuiltInDocumentAsChild(LICENSE_txt, LICENSE_txt_size);
+    ImGui::End();
+}
+
+void ShowBuildInfoWindow(bool* p_open) {
+    ImGui::Begin("Build Information", p_open, ImGuiWindowFlags_None);
+    ImGui::Text("Build Host: %s", BUILD_HOST);
+    ImGui::Text("Build Target: %s", BUILD_TARG);
+    ImGui::Text("Build Date: %s", __DATE__);
+    ImGui::Text("Build Time: %s", __TIME__);
+    ImGui::Text("ImGUI Version: v%s", IMGUI_VERSION);
+    ImGui::Text("TinyXML2 Version: v%d.%d.%d", TINYXML2_MAJOR_VERSION, TINYXML2_MINOR_VERSION, TINYXML2_PATCH_VERSION);
+    ImGui::Text("libcJSON Version: v%d.%d.%d", CJSON_VERSION_MAJOR, CJSON_VERSION_MINOR, CJSON_VERSION_PATCH);
+    ImGui::End();
+}
+
+void ShowDebuggerWindow(bool* p_open) {
+    ImGui::Begin("WiiIR Debugger", p_open, ImGuiWindowFlags_None);
+
+    // Show metrics
+    static bool showMet = false;
+
+    // Checkboxing
+    ImGui::Checkbox("Show Metrics", &showMet);
+    ImGui::TextLinkOpenURL("Go to the OldNet", "http://theoldnet.com/");
+
+    // open Dialog Simple
+    if (ImGui::Button("Open File Dialog")) {
+        IGFD::FileDialogConfig config;
+        config.path = ".";
+        ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", config);
+    }
+    // display
+    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+        if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+        std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+        std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+        // action
+        }
+        
+        // close
+        ImGuiFileDialog::Instance()->Close();
+    }
+    
+    // Metrics
+    if(showMet) ImGui::ShowMetricsWindow(&showMet);
+    ImGui::End();
 }
 
 void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
@@ -678,14 +790,58 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     static int selectedDevice = -1;
     static int selectedButton = -1;
 
+    // Modals
+    static bool showOSLModal = false;
+    static bool showBuildInfoModal = false;
+    static bool showCreditsModal = false;
+    static bool showDebugModal = false;
+    static bool showMSPaint = false;
+
     // Main window
-    ImGui::Begin("InfraRed Browser", nullptr, window_flags);
+    ImGui::Begin("InfraRed Browser", nullptr, ImGuiWindowFlags_MenuBar); //, nullptr, window_flags);
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Exit"))
+            {
+                exit(0);
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::MenuItem("Open Source Licenses", nullptr, &showOSLModal, true);
+            ImGui::MenuItem("Build Information", nullptr, &showBuildInfoModal, true);
+            ImGui::MenuItem("Credits", nullptr, &showCreditsModal, true);
+            ImGui::MenuItem("MSPaint", nullptr, &showMSPaint, true);
+            ImGui::MenuItem("Debugger", nullptr, &showDebugModal, true);
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    // About Modal
+    if (showCreditsModal) {
+        ShowCreditsWindow(&showCreditsModal);
+    } if (showBuildInfoModal) {
+        ShowBuildInfoWindow(&showBuildInfoModal);
+    } if (showOSLModal) {
+        ShowOSLWindow(&showOSLModal);
+    } if (showDebugModal) {
+        ShowDebuggerWindow(&showDebugModal);
+    }
+
+    // MSPaint
+    if(showMSPaint) {
+        DrawMSPaintEasterEgg(&showMSPaint);
+    }
 
     // ----- LAYOUT: 3 horizontal panels -----
-    float panelHeight = ImGui::GetContentRegionAvail().y;
+    //float panelHeight = ImGui::GetContentRegionAvail().y;
 
     // LEFT PANEL: Manufacturers
-    ImGui::BeginChild("mfg_panel", ImVec2(200, panelHeight), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("mfg_panel", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::Text("Manufacturers");
     ImGui::Separator();
 
@@ -725,7 +881,7 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     ImGui::SameLine();
 
     // MIDDLE PANEL: Devices
-    ImGui::BeginChild("device_panel", ImVec2(250, panelHeight), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("device_panel", ImVec2(250, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::Text("Devices");
     ImGui::Separator();
 
@@ -749,7 +905,7 @@ void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags)
     ImGui::SameLine();
 
     // RIGHT PANEL: Buttons
-    ImGui::BeginChild("button_panel", ImVec2(0, panelHeight), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("button_panel", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::Text("Buttons");
     ImGui::Separator();
 

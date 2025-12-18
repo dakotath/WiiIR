@@ -2,17 +2,29 @@
 #ifndef WIIIR_IR_H
 #define WIIIR_IR_H
 
+#include <time.h>
+#include <errno.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+
+// STB Usage
+#pragma once
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#define STB_PERLIN_IMPLEMENTATION
 
 #ifdef NINTENDOWII
 #include <fat.h>
 #include <gccore.h>
 #include <wiiuse/wpad.h>
+#include <ogc/wiilaunch.h>
 #else
 #define _XML_NO_MSXML
 #include <msxml.h>
+#include <stdint.h>
 
 typedef uint8_t   u8;
 typedef uint16_t  u16;
@@ -27,6 +39,7 @@ typedef int64_t   s64;
 
 // SDL2 Video Rendering
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 #ifdef __cplusplus
 #include <string>
@@ -390,13 +403,29 @@ XMLDatabase LoadXML(const char* filename, const char* customFile = nullptr);
 void DrawXMLBrowser(XMLDatabase& db, ImGuiWindowFlags &window_flags);
 #endif
 
+// Implementation
+void SetupWiiImplementation();
+
 // Helper Functions.
+SDL_Texture* GeneratePS3Background(SDL_Renderer* renderer, int width, int height, float frame, int mode);
+SDL_Texture* LoadTextureFromArray(SDL_Renderer* renderer, const unsigned char* data, size_t size, int* outWidth, int* outHeight);
+SDL_Texture* LoadTextureFromFile(SDL_Renderer* renderer, const char* filePath, int* outWidth, int* outHeight);
+void FreeTexture(SDL_Texture* tex);
 void StartUI();
 void ShutdownUI();
 void SetCursorApp(int x, int y);
 void SetColors(Color background, Color foreground);
 void ClearScreen();
 void StopCritical(const char* msg, const char* running_func, const char* occuring_file, int lcall, uint32_t code);
+void DrawMSPaintEasterEgg(bool* p_open);
+
+// OSReporter
+void setup_osreport_redirection();
+void restore_original_cerr();
+void restore_original_cout();
+
+// ThemeLoader
+bool LoadImGuiThemeFromJSON(const char* filename);
 
 #ifdef __cplusplus
 }
