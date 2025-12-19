@@ -80,7 +80,6 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "ImGuiFileDialog.h"
 #include "WiiIR/IR.hpp"
 #include "stb/stb_image_resize2.h"
 #include <stdio.h>
@@ -664,15 +663,14 @@ void RunDeviceInputLoop(const DeviceEntry& device)
                 if      (map.value == "WPAD_BUTTON_PLUS") pressed = (down & WPAD_BUTTON_PLUS) ? 1 : 0;
                 if      (map.value == "WPAD_BUTTON_MINUS") pressed = (down & WPAD_BUTTON_MINUS) ? 1 : 0;
                 if      (map.value == "WPAD_BUTTON_HOME") pressed = (down & WPAD_BUTTON_HOME) ? 1 : 0;
-                if      (map.value == "WPAD_NUNCHUK_C") pressed = (down & WPAD_NUNCHUK_C) ? 1 : 0;
-                if      (map.value == "WPAD_NUNCHUK_Z") pressed = (down & WPAD_NUNCHUK_Z) ? 1 : 0;
+                if      (map.value == "WPAD_NUNCHUK_C") pressed = (down & WPAD_NUNCHUK_BUTTON_C) ? 1 : 0;
+                if      (map.value == "WPAD_NUNCHUK_Z") pressed = (down & WPAD_NUNCHUK_BUTTON_Z) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_A") pressed = (down & WPAD_CLASSIC_BUTTON_A) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_B") pressed = (down & WPAD_CLASSIC_BUTTON_B) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_X") pressed = (down & WPAD_CLASSIC_BUTTON_X) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_Y") pressed = (down & WPAD_CLASSIC_BUTTON_Y) ? 1 : 0;
-                if      (map.value == "WPAD_CLASSIC_BUTTON_Z") pressed = (down & WPAD_CLASSIC_BUTTON_Z) ? 1 : 0;
-                if      (map.value == "WPAD_CLASSIC_BUTTON_L") pressed = (down & WPAD_CLASSIC_BUTTON_L) ? 1 : 0;
-                if      (map.value == "WPAD_CLASSIC_BUTTON_R") pressed = (down & WPAD_CLASSIC_BUTTON_R) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_ZL") pressed = (down & WPAD_CLASSIC_BUTTON_ZL) ? 1 : 0;
+                if      (map.value == "WPAD_CLASSIC_BUTTON_ZR") pressed = (down & WPAD_CLASSIC_BUTTON_ZR) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_FULL_L") pressed = (down & WPAD_CLASSIC_BUTTON_FULL_L) ? 1 : 0;
                 if      (map.value == "WPAD_CLASSIC_BUTTON_FULL_R") pressed = (down & WPAD_CLASSIC_BUTTON_FULL_R) ? 1 : 0;
                 if (pressed)
@@ -762,24 +760,6 @@ void ShowDebuggerWindow(bool* p_open) {
     // Checkboxing
     ImGui::Checkbox("Show Metrics", &showMet);
     ImGui::TextLinkOpenURL("Go to the OldNet", "http://theoldnet.com/");
-
-    // open Dialog Simple
-    if (ImGui::Button("Open File Dialog")) {
-        IGFD::FileDialogConfig config;
-        config.path = ".";
-        ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", config);
-    }
-    // display
-    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
-        if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
-        std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-        std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-        // action
-        }
-        
-        // close
-        ImGuiFileDialog::Instance()->Close();
-    }
     
     // Metrics
     if(showMet) ImGui::ShowMetricsWindow(&showMet);

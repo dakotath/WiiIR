@@ -190,6 +190,7 @@ int main(int, char**)
     cfg.FontDataOwnedByAtlas = false;
     io.Fonts->AddFontFromMemoryTTF((void*)DroidSans_ttf, DroidSans_ttf_size, 16.0f, &cfg);
     io.Fonts->Build();
+    //io.Fonts->RemoveFont(&io.Fonts->Fonts[0]);
 
     // Main loop
     bool done = false;

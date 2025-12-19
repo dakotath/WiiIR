@@ -13,8 +13,6 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "implot.h"
-#include "implot_internal.h"
 #include "stb/stb_image.h"
 #include "stb/stb_perlin.h"
 
@@ -222,7 +220,6 @@ void ShutdownUI()
     ImGui_ImplSDL2_Shutdown();
 
     // 3. Destroy ImGui context
-    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     // 4. Destroy SDL renderer
@@ -284,8 +281,6 @@ bool doStorageSelection() {
         ImGui_ImplSDL2_NewFrame();
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui::NewFrame();
-
-        ImPlot::ShowDemoWindow(&demoPlot);
 
         // --- Build UI ---
         ImGui::SetNextWindowSize(ImVec2(300, 150), ImGuiCond_Always);
@@ -393,7 +388,6 @@ void StartUI() {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImPlot::CreateContext();
 
     // Attempt to load theme file
     LoadImGuiThemeFromJSON("imgui_theme.json");

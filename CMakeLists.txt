@@ -82,12 +82,12 @@ set(IMGUI_SOURCES
     ${IMGUI_PATCH_DIR}/Implementation.cpp
 
     # Extension: ImPlot
-    ${IMGUI_IMPLOT_DIR}/implot.cpp
-    ${IMGUI_IMPLOT_DIR}/implot_items.cpp
-    ${IMGUI_IMPLOT_DIR}/implot_demo.cpp
+    # ${IMGUI_IMPLOT_DIR}/implot.cpp
+    # ${IMGUI_IMPLOT_DIR}/implot_items.cpp
+    # ${IMGUI_IMPLOT_DIR}/implot_demo.cpp
 
     # Extension: ImGuiFileDialog
-    ${IMGUI_IMFDLG_DIR}/ImGuiFileDialog.cpp
+    # ${IMGUI_IMFDLG_DIR}/ImGuiFileDialog.cpp
 )
 
 # Combine all sources
@@ -113,8 +113,8 @@ include_directories(
     ${IMGUI_PATCH_DIR}/backends
 
     # ImGUI Extensions
-    ${IMGUI_IMPLOT_DIR}
-    ${IMGUI_IMFDLG_DIR}
+    # ${IMGUI_IMPLOT_DIR}
+    # ${IMGUI_IMFDLG_DIR}
 
     # cJSON
     ${CJSON_DIR}
